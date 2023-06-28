@@ -1,0 +1,118 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "process",
+            "label": "new post",
+            "detail": "新建一篇文章",
+            "command": "hugo",
+            "args": [
+                "new",
+                "${input:postwhere}${input:postname}/index.md"
+            ],
+            "icon": {
+                "color": "terminal.ansiYellow",
+                "id": "file-add"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        },
+        {   
+            /*
+            1. hugo 产生publick文件
+            2. 提交public文件
+            3. 推送public到github
+            4. 提交blog文件
+            5. 推送blog到github
+            */
+            "type": "shell",
+            "label": "release all",
+            "detail": "一键发布",
+            "command": "echo",
+            "args": [
+                "已完成,commit内容为：",
+                "${input:committype}${input:committext}"
+            ],
+            "icon": {
+                "color": "terminal.ansiBlue",
+                "id": "git-pull-request-new-changes"
+            },
+            "dependsOrder": "sequence",
+            "dependsOn":[
+                "genpublic",
+                "gitpublic",
+                "gitmyblog"
+            ],
+        },
+        {
+            // hugo
+            "label": "genpublic",
+            "detail": "产生public文件",
+            "command":"hugo",
+            "hide": true
+        },
+        {    
+            "label": "gitpublic",
+            "detail": "提交public文件",
+            "type": "shell",
+            "hide": true,
+            "command":[
+                "git -C ./public . ",
+                "git -C ./public commit -m '${input:committype}${input:committext}'",
+                "git -C ./public push"
+            ]
+        },
+        {
+            "label": "gitmyblog",
+            "detail": "提交myblog文件",
+            "type": "shell",
+            "hide": true,
+            "command":[
+                "git -C ./public . ",
+                "git -C ./public commit -m '${input:committype}${input:committext}'",
+                "git -C ./public push"
+            ]
+        }
+    ],"inputs": [
+        {   
+            "id": "postname",
+            "type": "promptString",
+            "description": "请输入要新增的文章名称",
+            // "default": "posts/$1/index.md"
+        },
+        {
+            "id": "committype",
+            "type": "pickString",
+            "options": [
+                "🎉 init:",
+                "✨ feat:",
+                "🐞 fix:",
+                "📃 docs:",
+                "🌈 style:",
+                "🦄 refactor:",
+                "🧪 test:"
+            ],
+            "description": "请选择commit类型",
+            // "default": "✨ feat:"
+        },
+        {
+            "id": "committext",
+            "type": "promptString",
+            "description": "请输入commit的内容",
+            "default": "just new/modify posts"
+        },
+        {
+            "id": "postwhere",
+            "type": "pickString",
+            "description": "选择文章位置",
+            "options": [
+                "docs/erp/",
+                "docs/erp/tiptop/",
+                "posts/"
+            ]
+        }
+    ]
+  }
