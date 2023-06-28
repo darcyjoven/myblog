@@ -2,6 +2,10 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "2.0.0",
+    "options": {
+        "cwd": "${workspaceFolder}"
+    },
+    // "group": ,
     "tasks": [
         {
             "type": "process",
@@ -20,14 +24,7 @@
                 "$msCompile"
             ]
         },
-        {   
-            /*
-            1. hugo 产生publick文件
-            2. 提交public文件
-            3. 推送public到github
-            4. 提交blog文件
-            5. 推送blog到github
-            */
+        {
             "type": "shell",
             "label": "release all",
             "detail": "一键发布",
@@ -41,43 +38,118 @@
                 "id": "git-pull-request-new-changes"
             },
             "dependsOrder": "sequence",
-            "dependsOn":[
+            "dependsOn": [
                 "genpublic",
                 "gitpublic",
                 "gitmyblog"
             ],
+            "problemMatcher": []
         },
         {
-            // hugo
             "label": "genpublic",
             "detail": "产生public文件",
-            "command":"hugo",
+            "command": "hugo",
             "hide": true
         },
-        {    
+        {
             "label": "gitpublic",
             "detail": "提交public文件",
             "type": "shell",
+            "icon": {
+                "color": "terminal.ansiCyan",
+                "id": "book"
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "addpublic",
+                "commitpublic",
+                "pushpublic"
+            ]
+        },
+        {
+            "label": "addpublic",
+            "type": "shell",
             "hide": true,
-            "command":[
-                "git -C ./public . ",
-                "git -C ./public commit -m '${input:committype}${input:committext}'",
-                "git -C ./public push"
+            "command": [
+                "git",
+                "-C",
+                "./public",
+                "add",
+                "."
+            ]
+        },
+        {
+            "label": "commitpublic",
+            "type": "shell",
+            "hide": true,
+            "command": [
+                "git",
+                "-C",
+                "./public",
+                "commit",
+                "-m",
+                "'${input:committype}${input:committext}'"
+            ]
+        },
+        {
+            "label": "pushpublic",
+            "type": "shell",
+            "hide": true,
+            "command": [
+                "git",
+                "-C",
+                "./public",
+                "push"
             ]
         },
         {
             "label": "gitmyblog",
             "detail": "提交myblog文件",
+            "type": "shell", 
+            "icon": {
+                "color": "terminal.ansiCyan",
+                "id": "archive"
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "addmyblog",
+                "commitmyblog",
+                "pushmyblog",
+            ]
+        },
+        {
+            "label": "addmyblog",
             "type": "shell",
             "hide": true,
-            "command":[
-                "git -C ./public . ",
-                "git -C ./public commit -m '${input:committype}${input:committext}'",
-                "git -C ./public push"
+            "command": [
+                "git",
+                "add",
+                "."
             ]
-        }
-    ],"inputs": [
-        {   
+        },
+        {
+            "label": "commitmyblog",
+            "type": "shell",
+            "hide": true,
+            "command": [
+                "git",
+                "commit",
+                "-m",
+                "'${input:committype}${input:committext}'"
+            ]
+        },
+        {
+            "label": "pushmyblog",
+            "type": "shell",
+            "hide": true,
+            "command": [
+                "git",
+                "push"
+            ]
+        },
+    ],
+    "inputs": [
+        {
             "id": "postname",
             "type": "promptString",
             "description": "请输入要新增的文章名称",
@@ -115,4 +187,4 @@
             ]
         }
     ]
-  }
+}
